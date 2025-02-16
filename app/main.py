@@ -74,13 +74,16 @@ async def process_message(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             )
             return
 
-        await context.bot.send_message(
-            chat_id=update.message.chat_id,
-            text="\n".join(
-                f"• `{shortcode}` -> `{url}`" for shortcode, url in domain_data.items()
-            ),
-            parse_mode="Markdown",
-        )
+        items = list(domain_data.items())
+        for i in range(0, len(items), 20):
+            chunk = items[i : i + 20]
+            await context.bot.send_message(
+                chat_id=update.message.chat_id,
+                text="\n".join(
+                    f"• `{shortcode}` -> `{url}`" for shortcode, url in chunk
+                ),
+                parse_mode="Markdown",
+            )
         return
     elif len(parts) == 1:
         shortcode = parts[0]

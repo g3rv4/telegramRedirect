@@ -1,0 +1,20 @@
+services:
+  app:
+    build:
+      context: app/
+      dockerfile: Dockerfile
+    env_file:
+      - app/.env
+    environment:
+      - CONFIG_PATH=/config/config.json
+      - NGINX_CONFIG_PATH=/config/nginx
+    volumes:
+      - ./temp:/config
+  nginx:
+    build:
+      context: nginx/
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    volumes:
+      - ./temp/nginx:/etc/nginx/conf.d

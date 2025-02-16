@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "telegram-redirect"
+version = "0.1.0"
+description = ""
+authors = ["Gervasio Marchand <github@gervas.io>"]
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.11"
+python-telegram-bot = "^21.10"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

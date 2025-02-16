@@ -25,10 +25,11 @@ domain_by_chat_id = {
     for chat_id, domain in [entry.split(":")]
 }
 aliases_by_domain = {
-        parts[0]: parts[1].split('|') if len(parts) > 1 else []
-        for group in os.environ.get("ALIASES_BY_DOMAIN", "").split(',') if group
-        for parts in [group.split(':')]
-    }
+    parts[0]: parts[1].split("|") if len(parts) > 1 else []
+    for group in os.environ.get("ALIASES_BY_DOMAIN", "").split(",")
+    if group
+    for parts in [group.split(":")]
+}
 
 
 def get_path_for_shortcode(shortcode: str) -> str:
@@ -63,6 +64,22 @@ async def process_message(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         await context.bot.send_message(
             chat_id=update.message.chat_id,
             text="Either enter `shortcode url` to add or update a redirect or `shortcode` to delete it.",
+        )
+        return
+    elif message == "list":
+        if not domain_data:
+            await context.bot.send_message(
+                chat_id=update.message.chat_id,
+                text="No redirects configured.",
+            )
+            return
+
+        await context.bot.send_message(
+            chat_id=update.message.chat_id,
+            text="\n".join(
+                f"• `{shortcode}` -> `{url}`" for shortcode, url in domain_data.items()
+            ),
+            parse_mode="Markdown",
         )
         return
     elif len(parts) == 1:

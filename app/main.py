@@ -104,7 +104,7 @@ async def process_message(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
     redirects = "\n".join(
         (
-            f"""    location /{get_path_for_shortcode(shortcode)} {{
+            f"""    location = /{get_path_for_shortcode(shortcode)} {{
         return 302 {url};
     }}"""
             for shortcode, url in domain_data.items()
@@ -122,6 +122,10 @@ server {{
     server_name {domain} {" ".join(aliases_by_domain.get(domain, []))};
 
 {redirects}
+
+    location / {{
+        return 404;
+    }}
 }}
 """
         )

@@ -126,7 +126,7 @@ server {{
 
     location / {{
         default_type text/plain;
-        return 404 "Invalid url.\n";
+        return 404 "Invalid url.\\n";
     }}
 }}
 """

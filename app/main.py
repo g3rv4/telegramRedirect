@@ -80,7 +80,7 @@ async def process_message(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             await context.bot.send_message(
                 chat_id=update.message.chat_id,
                 text="\n".join(
-                    f"• `{shortcode}` -> `{url}`" for shortcode, url in chunk
+                    f"• [{shortcode}](https://{domain}/{get_path_for_shortcode(shortcode)}) -> `{url}`" for shortcode, url in chunk
                 ),
                 parse_mode="Markdown",
             )
@@ -111,10 +111,9 @@ async def process_message(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             url = f"https://{url}"
 
         if shortcode in domain_data:
-            msg = f"Redirect `{shortcode}` updated from `{domain_data[shortcode]}` to `{url}`."
+            msg = f"Redirect [{shortcode}](https://{domain}/{get_path_for_shortcode(shortcode)}) updated from `{domain_data[shortcode]}`."
         else:
-            msg = f"Redirect `{shortcode}` to `{url}` added."
-        msg += f"\n\n```https://{domain}/{get_path_for_shortcode(shortcode)}```"
+            msg = f"Redirect [{shortcode}](https://{domain}/{get_path_for_shortcode(shortcode)}) to `{url}` added."
 
         domain_data[shortcode] = url
     else:

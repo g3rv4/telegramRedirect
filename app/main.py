@@ -26,6 +26,10 @@ domain_by_chat_id = {
 }
 
 
+def get_path_for_shortcode(shortcode: str) -> str:
+    return "" if shortcode == "_default_" else f"{shortcode}"
+
+
 async def process_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     domain = domain_by_chat_id.get(update.message.chat_id)
     if not domain:
@@ -77,7 +81,7 @@ async def process_message(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             msg = f"Redirect `{shortcode}` updated from `{domain_data[shortcode]}` to `{url}`."
         else:
             msg = f"Redirect `{shortcode}` to `{url}` added."
-        msg += f"\n\n```https://{domain}/{shortcode}```"
+        msg += f"\n\n```https://{domain}/{get_path_for_shortcode(shortcode)}```"
 
         domain_data[shortcode] = url
     else:
@@ -93,10 +97,19 @@ async def process_message(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     if not os.path.exists(os.environ["NGINX_CONFIG_PATH"]):
         os.makedirs(os.environ["NGINX_CONFIG_PATH"])
 
-    redirects = "\n".join((f"""    location /{shortcode} {{
+    redirects = "\n".join(
+        (
+            f"""    location /{get_path_for_shortcode(shortcode)} {{
         return 302 {url};
-    }}""" for shortcode, url in domain_data.items()))
-    with open(os.path.join(os.environ["NGINX_CONFIG_PATH"], domain + ".conf"), "w", encoding="utf-8") as f:
+    }}"""
+            for shortcode, url in domain_data.items()
+        )
+    )
+    with open(
+        os.path.join(os.environ["NGINX_CONFIG_PATH"], domain + ".conf"),
+        "w",
+        encoding="utf-8",
+    ) as f:
         f.write(
             f"""
 server {{
@@ -105,7 +118,8 @@ server {{
 
 {redirects}
 }}
-""")
+"""
+        )
 
     await context.bot.send_message(
         chat_id=update.message.chat_id,

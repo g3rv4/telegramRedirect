@@ -63,7 +63,7 @@ async def process_message(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     if message == "help":
         await context.bot.send_message(
             chat_id=update.message.chat_id,
-            text="Either enter `shortcode url` to add or update a redirect or `shortcode` to delete it.",
+            text="Either enter `shortcode url` to add or update a redirect or `shortcode` to delete it. You can also type `list` to see all the current redirects.",
         )
         return
     elif message == "list":

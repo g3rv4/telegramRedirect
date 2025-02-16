@@ -56,9 +56,16 @@ async def process_message(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         data[domain] = {}
     domain_data = data[domain]
 
-    parts = update.message.text.split(" ")
+    message = update.message.text.strip()
+    parts = message.split(" ")
     msg = None
-    if len(parts) == 1:
+    if message == "help":
+        await context.bot.send_message(
+            chat_id=update.message.chat_id,
+            text="Either enter `shortcode url` to add or update a redirect or `shortcode` to delete it.",
+        )
+        return
+    elif len(parts) == 1:
         shortcode = parts[0]
         if shortcode not in domain_data:
             await context.bot.send_message(
@@ -91,10 +98,6 @@ async def process_message(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
         domain_data[shortcode] = url
     else:
-        await context.bot.send_message(
-            chat_id=update.message.chat_id,
-            text="Either enter `shortcode url` to add or update a redirect or `shortcode` to delete it.",
-        )
         return
 
     with open(file_path, "w", encoding="utf-8") as f:

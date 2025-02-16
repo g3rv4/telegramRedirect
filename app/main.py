@@ -42,6 +42,7 @@ async def process_message(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             chat_id=update.message.chat_id,
             text="The bot is not configured to use this chat.",
         )
+        logger.info("No domain for chat %s", update.message.chat_id)
         return
 
     file_path = os.environ["CONFIG_PATH"]

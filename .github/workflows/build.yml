@@ -1,0 +1,51 @@
+name: build
+on:
+  push:
+    branches: [ main ]
+
+env:
+  DOCKER_BUILDKIT: 1
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push the Docker image
+        shell: bash
+        run: |
+          short_sha=${GITHUB_SHA::7}
+
+          docker buildx create --name mybuilder --use
+      
+          docker buildx build \
+              --platform=linux/amd64,linux/arm64 \
+              -t "ghcr.io/g3rv4/telegramredirect-app:${short_sha}" \
+              -t ghcr.io/g3rv4/telegramredirect-app:latest \
+              -f ./app/Dockerfile \
+              --cache-from="type=registry,ref=ghcr.io/g3rv4/telegramredirect-app-cache:latest" \
+              --cache-to=type=registry,ref=ghcr.io/g3rv4/telegramredirect-app-cache:latest,mode=max \
+              --push \
+              app/ &
+
+          docker buildx build \
+              --platform=linux/arm64 \
+              -t "ghcr.io/g3rv4/telegramredirect-nginx:${short_sha}" \
+              -t ghcr.io/g3rv4/telegramredirect-nginx:latest \
+              -f ./nginx/Dockerfile \
+              --cache-from="type=registry,ref=ghcr.io/g3rv4/telegramredirect-nginx-cache:latest" \
+              --cache-to=type=registry,ref=ghcr.io/g3rv4/telegramredirect-nginx-cache:latest,mode=max \
+              --push \
+              nginx/ &
+
+          wait
+    permissions:
+      contents: read
+      packages: write

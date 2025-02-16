@@ -24,6 +24,11 @@ domain_by_chat_id = {
     for entry in os.environ["DOMAIN_BY_CHAT_ID"].split(",")
     for chat_id, domain in [entry.split(":")]
 }
+aliases_by_domain = {
+        parts[0]: parts[1].split('|') if len(parts) > 1 else []
+        for group in os.environ.get("ALIASES_BY_DOMAIN", "").split(',') if group
+        for parts in [group.split(':')]
+    }
 
 
 def get_path_for_shortcode(shortcode: str) -> str:
@@ -114,7 +119,7 @@ async def process_message(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             f"""
 server {{
     listen 80;
-    server_name {domain};
+    server_name {domain} {" ".join(aliases_by_domain.get(domain, []))};
 
 {redirects}
 }}

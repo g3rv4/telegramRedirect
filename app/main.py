@@ -83,6 +83,7 @@ async def process_message(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
                     f"• [{shortcode}](https://{domain}/{get_path_for_shortcode(shortcode)}) -> `{url}`" for shortcode, url in chunk
                 ),
                 parse_mode="Markdown",
+                disable_web_page_preview=True,
             )
         return
     elif len(parts) == 1:
@@ -158,6 +159,7 @@ server {{
         chat_id=update.message.chat_id,
         text=msg,
         parse_mode="Markdown",
+        disable_web_page_preview=True,
     )
 
 

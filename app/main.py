@@ -7,7 +7,9 @@ from telegram import Update
 from telegram.ext import Application,CommandHandler
 
 logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    level=logging.INFO,
+    datefmt="%Y-%m-%dT%H:%M:%S%z",
 )
 logging.getLogger("httpx").setLevel(logging.WARNING)
 

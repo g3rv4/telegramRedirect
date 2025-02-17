@@ -15,6 +15,6 @@ COPY *.lock *.toml ./
 
 RUN poetry install --only main --no-root && rm -rf $POETRY_CACHE_DIR
 
-COPY * ./
+COPY . ./
 
 CMD ["python", "main.py"]

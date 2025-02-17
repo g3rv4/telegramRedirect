@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import re
+from typing import Optional
 from telegram import Update
 
 logger = logging.getLogger(__name__)
@@ -19,12 +20,14 @@ aliases_by_domain = {
     for parts in [group.split(":")]
 }
 
+
 def get_domain_from_chat(update: Update) -> str:
     chat_id = update.message.chat_id
     if chat_id not in domain_by_chat_id:
         logger.error(f"Chat ID {chat_id} not set up")
         raise ValueError(f"Chat ID {chat_id} not set up")
     return domain_by_chat_id[chat_id]
+
 
 def get_shortcode(update: Update) -> str:
     domain = get_domain_from_chat(update)
@@ -35,9 +38,12 @@ def get_shortcode(update: Update) -> str:
     elif re.match(r"^https?://", shortcode):
         raise ValueError(f"When using a full url, it should be in the {domain} domain.")
     if not re.match(r"^[a-zA-Z0-9_-]+$", shortcode):
-        raise ValueError("Shortcode must only contain letters, numbers, hyphens, and underscores.")
+        raise ValueError(
+            "Shortcode must only contain letters, numbers, hyphens, and underscores."
+        )
 
     return shortcode if shortcode else "_default_"
+
 
 def get_full_state() -> dict:
     file_path = os.environ["CONFIG_PATH"]
@@ -46,11 +52,13 @@ def get_full_state() -> dict:
             data = json.load(f)
     else:
         data = {}
-    
+
     return data
+
 
 def get_domain_state(domain: str) -> dict:
     return get_full_state().get(domain, {})
+
 
 def save_domain_state(domain: str, domain_data: dict) -> None:
     data = get_full_state()
@@ -59,6 +67,13 @@ def save_domain_state(domain: str, domain_data: dict) -> None:
     file_path = os.environ["CONFIG_PATH"]
     with open(file_path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2)
+
+    update_nginx_file(domain)
+
+
+def update_nginx_file(domain: str) -> None:
+    data = get_full_state()
+    domain_data = data.get(domain, {})
 
     redirects = "\n".join(
         (
@@ -82,12 +97,19 @@ server {{
 {redirects}
 
     location / {{
+        access_log off;
         default_type text/plain;
         return 404 "Invalid url.\\n";
     }}
 }}
 """
         )
+
+
+def update_nginx_files() -> None:
+    for domain in domain_by_chat_id.values():
+        update_nginx_file(domain)
+
 
 def get_path_for_shortcode(shortcode: str) -> str:
     return "" if shortcode == "_default_" else f"{shortcode}"

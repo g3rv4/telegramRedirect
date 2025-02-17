@@ -1,23 +1,19 @@
 from telegram import Update
-from telegram.ext import (
-    CommandHandler,
-    ContextTypes,
-    ConversationHandler,
-)
+from telegram.ext import ContextTypes
 from utils import (
     get_domain_from_chat,
     reply_message,
     get_domain_state,
-    get_path_for_shortcode
+    get_path_for_shortcode,
 )
 
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+async def handle(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     try:
         domain = get_domain_from_chat(update)
     except ValueError:
         await reply_message(update, "This chat is not set up to use the bot.")
-        return ConversationHandler.END
+        return
 
     domain_data = get_domain_state(domain)
     if not domain_data:
@@ -33,12 +29,3 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
                     for shortcode, url in chunk
                 ),
             )
-
-    return ConversationHandler.END
-
-
-handler = ConversationHandler(
-    entry_points=[CommandHandler("list", start)],
-    states={},
-    fallbacks=[],
-)

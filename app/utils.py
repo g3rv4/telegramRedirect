@@ -2,7 +2,6 @@ import json
 import logging
 import os
 import re
-from typing import Optional
 from telegram import Update
 
 logger = logging.getLogger(__name__)

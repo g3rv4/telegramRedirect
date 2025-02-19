@@ -76,7 +76,7 @@ def update_nginx_file(domain: str) -> None:
 
     redirects = "\n".join(
         (
-            f"""    location = /{get_path_for_shortcode(shortcode)} {{
+            f"""    location ~* ^/{get_path_for_shortcode(shortcode)}$ {{
         return 302 "{url}";
     }}"""
             for shortcode, url in domain_data.items()

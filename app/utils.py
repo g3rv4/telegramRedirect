@@ -70,18 +70,18 @@ def save_domain_state(domain: str, domain_data: dict) -> None:
     update_nginx_file(domain)
 
 
-def update_nginx_file(domain: str) -> None:
-    data = get_full_state()
-    domain_data = data.get(domain, {})
-
+def write_nginx_conf(
+    domain: str, domain_data: dict, suffix: str = "", default: str = ""
+) -> None:
     redirects = "\n".join(
         (
-            f"""    location ~* ^/{get_path_for_shortcode(shortcode)}$ {{
+            f"""    location ~* ^/{get_path_for_shortcode(shortcode)}{suffix}$ {{
         return 302 "{url}";
     }}"""
             for shortcode, url in domain_data.items()
         )
     )
+    default = default or 'default_type text/plain;return 404 "Invalid url.\\n";'
     with open(
         os.path.join(os.environ["NGINX_CONFIG_PATH"], domain + ".conf"),
         "w",
@@ -97,12 +97,24 @@ server {{
 
     location / {{
         access_log off;
-        default_type text/plain;
-        return 404 "Invalid url.\\n";
+        {default}
     }}
 }}
 """
         )
+
+
+def update_nginx_file(domain: str) -> None:
+    data = get_full_state()
+    domain_data = data.get(domain, {})
+
+    write_nginx_conf(domain, domain_data)
+    write_nginx_conf(
+        "b." + domain,
+        domain_data,
+        suffix=",",
+        default="rewrite ^/([^/]+)/?$ https://duckduckgo.com/?q=$1&t=vivaldi&ia=web redirect;",
+    )
 
 
 def update_nginx_files() -> None:

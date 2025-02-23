@@ -79,6 +79,7 @@ def write_nginx_conf(domain: str, domain_data: dict, default: str = "") -> None:
             for shortcode, url in domain_data.items()
         )
     )
+    browser_redirects = "\n".join(f'        if ($arg_q = "{shortcode}") {{ return 302 "{url}"; }}' for shortcode, url in domain_data.items() if shortcode)
     default = default or 'default_type text/plain;return 404 "Invalid url.\\n";'
     with open(
         os.path.join(os.environ["NGINX_CONFIG_PATH"], domain + ".conf"),
@@ -92,6 +93,11 @@ server {{
     server_name {domain} {" ".join(aliases_by_domain.get(domain, []))};
 
 {redirects}
+
+    location = /browser {{
+{browser_redirects}
+        return 302 "https://duckduckgo.com/?q=$arg_q&t=vivaldi&ia=web";
+    }}
 
     location / {{
         access_log off;
@@ -107,11 +113,6 @@ def update_nginx_file(domain: str) -> None:
     domain_data = data.get(domain, {})
 
     write_nginx_conf(domain, domain_data)
-    write_nginx_conf(
-        "b." + domain,
-        domain_data,
-        default="rewrite ^/([^/]+)/?$ https://duckduckgo.com/?q=$1&t=vivaldi&ia=web redirect;",
-    )
 
 
 def update_nginx_files() -> None:

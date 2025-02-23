@@ -70,12 +70,10 @@ def save_domain_state(domain: str, domain_data: dict) -> None:
     update_nginx_file(domain)
 
 
-def write_nginx_conf(
-    domain: str, domain_data: dict, suffix: str = "", default: str = ""
-) -> None:
+def write_nginx_conf(domain: str, domain_data: dict, default: str = "") -> None:
     redirects = "\n".join(
         (
-            f"""    location ~* ^/{get_path_for_shortcode(shortcode)}{suffix}$ {{
+            f"""    location ~* ^/{get_path_for_shortcode(shortcode)}$ {{
         return 302 "{url}";
     }}"""
             for shortcode, url in domain_data.items()
@@ -112,7 +110,6 @@ def update_nginx_file(domain: str) -> None:
     write_nginx_conf(
         "b." + domain,
         domain_data,
-        suffix=",",
         default="rewrite ^/([^/]+)/?$ https://duckduckgo.com/?q=$1&t=vivaldi&ia=web redirect;",
     )
 

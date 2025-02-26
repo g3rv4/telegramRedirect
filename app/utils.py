@@ -79,7 +79,7 @@ def write_nginx_conf(domain: str, domain_data: dict, default: str = "") -> None:
             for shortcode, url in domain_data.items()
         )
     )
-    browser_redirects = "\n".join(f'        if ($arg_q ~* "^((%20)|\+)*{shortcode}((%20)|\+)*$") {{ return 302 "{url}"; }}' for shortcode, url in domain_data.items() if shortcode)
+    browser_redirects = "\n".join(f'        if ($arg_q ~* "^((%20)|\+|,)*{shortcode}((%20)|\+|,)*$") {{ return 302 "{url}"; }}' for shortcode, url in domain_data.items() if shortcode)
     default = default or 'default_type text/plain;return 404 "Invalid url.\\n";'
     with open(
         os.path.join(os.environ["NGINX_CONFIG_PATH"], domain + ".conf"),

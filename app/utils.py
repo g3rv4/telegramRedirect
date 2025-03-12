@@ -92,6 +92,10 @@ server {{
     listen 80;
     server_name {domain} {" ".join(aliases_by_domain.get(domain, []))};
 
+    if ($http_user_agent ~* "Slackbot-LinkExpanding") {{
+        return 403;
+    }}
+
 {redirects}
 
     location = /browser {{

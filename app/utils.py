@@ -100,7 +100,7 @@ server {{
 
     location = /browser {{
 {browser_redirects}
-        return 302 "https://duckduckgo.com/?q=$arg_q&t=vivaldi&ia=web";
+        return 302 "https://kagi.com/search?q=$arg_q";
     }}
 
     location / {{

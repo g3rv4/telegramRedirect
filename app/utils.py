@@ -100,7 +100,7 @@ server {{
 
     location = /browser {{
 {browser_redirects}
-        return 302 "https://kagi.com/search?q=$arg_q";
+        return 302 "https://www.google.com/search?q=$arg_q";
     }}
 
     location / {{
